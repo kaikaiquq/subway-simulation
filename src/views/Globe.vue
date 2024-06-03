@@ -368,43 +368,32 @@ export default {
           strokeWidth: 2,
           clampToGround: true
         }).then(datasource => {
-          // console.log('datasource',datasource)
           viewer.dataSources.add(datasource);
-          const entities = datasource.entities.values // 拿到所有实体
-          // console.log('entities实体',entities);
+          const entities = datasource.entities.values
           entities.forEach(entity => {
-            entity.description = 'layer' // 判断是不是图层上图的entity
+            entity.description = 'layer'
             console.log('单条entity===》》》', entity)
             // 点=============================================================================================
             if (Cesium.defined(entity.billboard)) {
               const stopName = entity.name;
               console.log('stopName', stopName);
-              // entity.billboard.image._value = 'static/layerIcon/'+stopName+'.jpg'
               entity.billboard.image._value = 'static/layerIcon/stop_icon.png'
 
               entity.billboard.width = 10;
               entity.billboard.height = 10;
 
-              // 参数：near距离，near时的缩放值，far距离，far时的缩放值
               entity.billboard.scaleByDistance = new Cesium.NearFarScalar(1000, 1.0, 5000000, 0.2);
             }
-            // 判断实体是否为线
             else if (Cesium.defined(entity.polyline)) {
 
               var lineName=entity.name;
-              // 获取线的坐标数组
               var positions = entity.polyline.positions.getValue();
-              // console.log('positions',positions)
-              // 计算线的总长度
               var totalDistance = 0;
               for (var j = 0; j < positions.length - 1; j++) {
-                // var distance = Cesium.Cartesian3.distance(positions[j], positions[j + 1]);
                 var distance =_this.distanceCal(positions[j], positions[j + 1]);
                 totalDistance += distance;
               }
-              // console.log('distance',totalDistance)
               _this.lineTotalLengthMap[lineName]=totalDistance;
-              // console.log('Line total distance: ' ,_this.lineTotalLengthMap);
             }
             // 面=============================================================================================
             // if (Cesium.defined(entity.polygon)) {
@@ -434,7 +423,6 @@ export default {
 
     uploadPoint(geoData){
       const _this=this;
-      // console.log('选择的数据2===========================', geoData);
       const layerName=geoData.geometry.coordinates;
       const geoJsonDataSource = new Cesium.GeoJsonDataSource(layerName);
       geoJsonDataSource.load(geoData, {
@@ -453,16 +441,13 @@ export default {
             }else if(Cesium.defined(entity.polyline)){
 
               var lineName=entity.name;
-              // 获取线的坐标数组
               var positions = entity.polyline.positions.getValue();
-              // 计算线的总长度
               var totalDistance = 0;
               for (var j = 0; j < positions.length - 1; j++) {
                 var distance =_this.distanceCal(positions[j], positions[j + 1]);
                 totalDistance += distance;
               }
               _this.lineTotalLengthMap[lineName]=totalDistance;
-              // console.log('Line total distance: ' + totalDistanceList);
             }
           })
         })
@@ -471,7 +456,6 @@ export default {
 
     uploadGeoData(geoData){
       const _this=this;
-      // console.log('选择的数据2===========================', geoData);
       const layerName=geoData.properties.name;
       const geoJsonDataSource = new Cesium.GeoJsonDataSource(layerName);
       geoJsonDataSource.load(geoData, {
@@ -485,16 +469,13 @@ export default {
           entity.description = 'layer'
           if (Cesium.defined(entity.polyline)) {
             var lineName=entity.name;
-            // 获取线的坐标数组
             var positions = entity.polyline.positions.getValue();
-            // 计算线的总长度
             var totalDistance = 0;
             for (var j = 0; j < positions.length - 1; j++) {
               var distance =_this.distanceCal(positions[j], positions[j + 1]);
               totalDistance += distance;
             }
             _this.lineTotalLengthMap[lineName]=totalDistance;
-            // console.log('Line total distance: ' + totalDistanceList);
           }else if(Cesium.defined(entity.billboard)){
             entity.billboard.image._value = 'static/layerIcon/stop_icon.png'
             entity.billboard.width = 5
@@ -515,7 +496,6 @@ export default {
 
     async getAllChild() {
       const _this = this;
-      // var res = await getLineGeoInfo('016001,016002');
       var res = await getAllChild('016');
       var geoData = res.data;
       var features=geoData.features;
@@ -527,7 +507,6 @@ export default {
 
     async setRailLine () {
       const _this = this;
-      // var res = await getLineGeoInfo('016001,016002');
       var res = await setRailGeo('001');
       var geoData = res.data;
       var features=geoData.features;
@@ -538,10 +517,10 @@ export default {
 
     handleClick(){
       const _this=this;
-      let handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);//处理用户输入事件
-      handler.setInputAction(function (event) {       // 设置左键点击事件
-        let pick = viewer.scene.pick(event.position); // 获取 pick 拾取对象
-        if (Cesium.defined(pick)) {                   // 判断是否获取到了 pick
+      let handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+      handler.setInputAction(function (event) {
+        let pick = viewer.scene.pick(event.position);
+        if (Cesium.defined(pick)) {
           console.log('pick',pick)
           var name=pick.id._name;
           if(Cesium.defined(pick.id.position)){
@@ -549,7 +528,7 @@ export default {
             var position =pick.id._position._value;
             console.log('position_before:--',position);
             var cartographic = Cesium.Cartographic.fromCartesian(position);
-            // 将地理坐标转换为经纬度坐标
+
             var longitude = Cesium.Math.toDegrees(cartographic.longitude);
             var latitude = Cesium.Math.toDegrees(cartographic.latitude);
             var height = cartographic.height;
@@ -563,9 +542,7 @@ export default {
             _this.showGeoInfoFlag=true;
             console.log('geoInfo',_this.geoInfo);
           }else if(Cesium.defined(pick.id.polyline)){
-            // 获取线段对象
             var polyline = pick.id.polyline;
-            // 修改线段颜色
             polyline.material = Cesium.Color.GREEN;
             var positions = pick.id.polyline.positions.getValue();
             var newPositions = [];
@@ -580,7 +557,6 @@ export default {
               _this.uploadPoint(pointGeo);
               newPositions.push([longitude, latitude]);
             }
-            // 将坐标集合转换为GeoJSON格式的线段数据
             var lineGeoJson = turf.lineString(newPositions);
             var coorList=lineGeoJson.geometry.coordinates;
             _this.geoInfo.name=name;
@@ -589,11 +565,8 @@ export default {
             console.log('geoInfo',_this.geoInfo);
           }
         }else {
-          // 获取点的世界坐标
           const start_point = viewer.scene.camera.pickEllipsoid(event.position, viewer.scene.globe.ellipsoid)
-          // 笛卡尔坐标转弧度
           let cartographic = Cesium.Cartographic.fromCartesian(start_point, viewer.scene.globe.ellipsoid, new Cesium.Cartographic())
-          // Cesium.Math.toDegrees 弧度转度，将弧度转换成经纬度
           let lng = Cesium.Math.toDegrees(cartographic.longitude)
           let lat = Cesium.Math.toDegrees(cartographic.latitude)
           let pointList=[lng,lat];
@@ -641,7 +614,6 @@ export default {
       this.subwayJSONList.push(this.calculatePositionsBackward(this.choseLineJSON,3));
       console.log('subwayJSONList',this.subwayJSONList)
       this.calLength(this.subwayJSONList[3]);
-      // console.log('Line total distance: ' ,this.lineTotalLengthMap);
       await this.initCZMLModel(2);
       // await this.loadTrainBody(3);
       // await this.initCZMLModel(3);
@@ -776,13 +748,6 @@ export default {
 
             lastPointQuaternion=modelQuaternionList;
 
-            // unitQuaternionList.push(
-            //     {
-            //         interval: currentTimeISOString + "/" + nextTimeISOString,
-            //         cartesian: this.computeModelQuaternion(cartesianPoint)
-            //     }
-            // )
-            // date.setSeconds(date.getSeconds() + timeCostToNextPoint)
           }else {
 
             if(id===2){
@@ -800,8 +765,6 @@ export default {
           _this.dateList[k]=(dates);
         }
       }
-
-      // console.log('dateList',_this.dateList)
 
       czmlJSON[2].polyline.positions.cartesian = cartesianXYZList
       // czmlJSON[2].polyline.material=null
@@ -905,7 +868,6 @@ export default {
         }
       }
       czmlJSON[2].polyline.positions.cartesian = cartesianXYZList
-      // czmlJSON[2].polyline.material=null
       czmlJSON[1].position.cartesian = cartesianDateXYZList
       czmlJSON[1].model.gltf = ("static/SampleData/models/subway/subway"+id+".glb")
       czmlJSON[1].orientation.unitQuaternion = unitQuaternionList
@@ -931,15 +893,10 @@ export default {
     addTrainAndLabel() {
       this.speedLabelEntity = viewer.entities.add({
         position: new Cesium.CallbackProperty(() => {
-          // 假设列车实体已经创建并且位置正在动态更新
-          // 这里使用列车的当前位置作为标签的位置
           return this.entity.position.getValue(Cesium.JulianDate.now());
         }, false),
         label: {
           text: new Cesium.CallbackProperty(() => {
-            // 假设已经有一个方法来根据列车的当前位置确定应该显示哪个速度值
-            // 这里简化处理，直接从trainSpeedList中获取当前速度来显示
-            // 你可能需要根据列车的实际位置动态确定数组中哪个速度值是当前的
             let currentSpeed = this.getCurrentSpeed();
             return `速度: ${currentSpeed.toFixed(2)} 米/秒`;
           }, false),
@@ -949,7 +906,7 @@ export default {
           outlineWidth: 2,
           style: Cesium.LabelStyle.FILL_AND_OUTLINE,
           verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-          pixelOffset: new Cesium.Cartesian2(0, -20) // 根据需要调整
+          pixelOffset: new Cesium.Cartesian2(0, -20)
         }
       });
     },
@@ -968,14 +925,10 @@ export default {
       var modelHeading=0;
       try{
         modelHeading = this.computeModelHeading(position,positionNext);
-        // console.log('modelHeading',modelHeading);
       } catch(err){
-        // console.log(err)
       }
-      // var heading = Cesium.Math.toRadians(modelHeading); // 方向，单位为弧度
-      // console.log('heading',heading);
-      var pitch = 0; // 俯仰角，单位为弧度
-      var roll = 0; // 翻滚角，单位为弧度
+      var pitch = 0;
+      var roll = 0;
       var hpr = new Cesium.HeadingPitchRoll(modelHeading, pitch, roll);
       var orientation = Cesium.Transforms.headingPitchRollQuaternion(position, hpr);
       return [orientation.x, orientation.y, orientation.z, orientation.w];
